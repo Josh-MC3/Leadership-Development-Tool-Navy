@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Leadership Jacket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0A1628;
+    --navy-deep:#060D18;
+    --steel:#1C3A52;
+    --steel-light:#2A4D6B;
+    --parchment:#F5F2EA;
+    --parchment-dim:#EAE5D8;
+    --brass:#8B7355;
+    --brass-light:#C9A876;
+    --gold:#D4B468;
+    --ink:#1A1814;
+    --ink-soft:#4A4540;
+    --line: rgba(201,168,118,0.25);
+    --line-strong: rgba(201,168,118,0.5);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--navy);
+    color:var(--parchment);
+    font-family:'Source Serif 4', serif;
+    line-height:1.6;
+    min-height:100vh;
+  }
+  h1,h2,h3,h4{font-family:'Fraunces', serif;font-weight:600;margin:0;}
+  .mono{font-family:'JetBrains Mono', monospace;letter-spacing:0.04em;}
+  a{color:var(--brass-light);}
+
+  /* ---------- Layout shell ---------- */
+  .app{max-width:920px;margin:0 auto;padding:0 24px 120px;}
+  @media (max-width:600px){.app{padding:0 16px 100px;}}
+
+  /* ---------- Header / cover ---------- */
+  .cover{
+    padding:64px 0 40px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:8px;
+  }
+  .cover-eyebrow{
+    font-size:11px;
+    color:var(--brass-light);
+    text-transform:uppercase;
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .cover-eyebrow .rule{flex:1;height:1px;background:var(--line);}
+  .cover h1{
+    font-size:clamp(34px,6vw,56px);
+    line-height:1.05;
+    color:var(--parchment);
+    margin-bottom:14px;
+  }
+  .cover h1 em{font-style:italic;color:var(--brass-light);font-weight:500;}
+  .cover p.lede{
+    font-size:18px;
+    color:rgba(245,242,234,0.78);
+    max-width:560px;
+    margin-bottom:0;
+  }
+  .name-row{
+    margin-top:32px;
+    display:flex;
+    gap:28px;
+    flex-wrap:wrap;
+  }
+  .name-field{flex:1;min-width:200px;}
+  .name-field label{
+    display:block;
+    font-size:10.5px;
+    color:var(--brass-light);
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .name-field input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line-strong);
+    color:var(--parchment);
+    font-family:'Source Serif 4', serif;
+    font-size:17px;
+    padding:6px 2px;
+    outline:none;
+  }
+  .name-field input:focus{border-bottom-color:var(--gold);}
+  .name-field input::placeholder{color:rgba(245,242,234,0.32);}
+
+  /* ---------- Logbook progress strip ---------- */
+  .logstrip{
+    display:flex;
+    gap:0;
+    margin:36px 0 0;
+    border:1px solid var(--line);
+    border-radius:3px;
+    overflow:hidden;
+    background:var(--navy-deep);
+  }
+  .logstrip a{
+    flex:1;
+    text-decoration:none;
+    padding:13px 6px;
+    text-align:center;
+    font-size:10.5px;
+    color:rgba(245,242,234,0.45);
+    border-right:1px solid var(--line);
+    transition:background .15s, color .15s;
+    cursor:pointer;
+    position:relative;
+  }
+  .logstrip a:last-child{border-right:none;}
+  .logstrip a:hover{background:rgba(201,168,118,0.08);color:var(--parchment);}
+  .logstrip a.done{color:var(--brass-light);}
+  .logstrip a.done::after{
+    content:'';
+    position:absolute;bottom:0;left:0;right:0;height:2px;
+    background:var(--gold);
+  }
+  .logstrip a .ls-num{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;opacity:0.6;margin-bottom:3px;}
+
+  /* ---------- Section shell (the "pages" of the jacket) ---------- */
+  section.entry{
+    background:var(--parchment);
+    color:var(--ink);
+    border-radius:4px;
+    margin:28px 0;
+    padding:40px 44px;
+    box-shadow:0 1px 0 rgba(255,255,255,0.04) inset, 0 18px 40px -20px rgba(0,0,0,0.6);
+    position:relative;
+  }
+  @media (max-width:600px){section.entry{padding:28px 22px;}}
+  section.entry::before{
+    content:'';
+    position:absolute;top:0;left:0;bottom:0;width:4px;
+    background:var(--steel-light);
+    border-radius:4px 0 0 4px;
+  }
+  section.entry.complete::before{background:var(--gold);}
+
+  .entry-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    border-bottom:1px solid rgba(26,24,20,0.12);
+    padding-bottom:18px;
+    margin-bottom:26px;
+  }
+  .entry-tag{
+    font-size:10.5px;
+    color:var(--brass);
+    text-transform:uppercase;
+    margin-bottom:8px;
+    display:block;
+  }
+  .entry-head h2{font-size:26px;color:var(--ink);}
+  .entry-head .sub{color:var(--ink-soft);font-size:15px;margin-top:6px;font-style:italic;}
+  .status-pill{
+    font-size:10px;
+    text-transform:uppercase;
+    padding:5px 10px;
+    border-radius:20px;
+    border:1px solid rgba(26,24,20,0.2);
+    color:var(--ink-soft);
+    white-space:nowrap;
+    flex-shrink:0;
+    margin-top:4px;
+  }
+  .status-pill.complete{
+    background:rgba(212,180,104,0.18);
+    border-color:var(--brass);
+    color:#5c4a26;
+  }
+
+  /* book block */
+  .book{
+    display:flex;
+    gap:18px;
+    background:rgba(28,58,82,0.05);
+    border:1px solid rgba(28,58,82,0.15);
+    border-radius:4px;
+    padding:18px 20px;
+    margin-bottom:24px;
+  }
+  .book .spine{
+    width:6px;
+    border-radius:2px;
+    background:var(--steel);
+    flex-shrink:0;
+  }
+  .book-meta{flex:1;}
+  .book-meta .title{font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:var(--ink);}
+  .book-meta .author{color:var(--ink-soft);font-size:13.5px;margin-top:2px;}
+  .book-meta .why{font-size:14.5px;margin-top:10px;color:var(--ink-soft);line-height:1.55;}
+
+  /* prompts */
+  .prompt-group{margin-bottom:22px;}
+  .prompt-group:last-child{margin-bottom:0;}
+  .prompt-group .q{
+    font-size:15.5px;
+    color:var(--ink);
+    margin-bottom:8px;
+    font-weight:600;
+  }
+  textarea{
+    width:100%;
+    min-height:88px;
+    background:rgba(255,255,255,0.55);
+    border:1px solid rgba(26,24,20,0.18);
+    border-radius:3px;
+    padding:12px 14px;
+    font-family:'Source Serif 4', serif;
+    font-size:15px;
+    color:var(--ink);
+    resize:vertical;
+    outline:none;
+    line-height:1.55;
+  }
+  textarea:focus{border-color:var(--brass);background:#fff;}
+  textarea::placeholder{color:rgba(26,24,20,0.35);font-style:italic;}
+
+  .entry-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:28px;
+    padding-top:18px;
+    border-top:1px solid rgba(26,24,20,0.1);
+  }
+  .save-state{
+    font-size:12px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .save-state .dot{
+    display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:#b6b6b6;margin-right:6px;position:relative;top:-1px;
+  }
+  .save-state.saved .dot{background:#5c8a52;}
+
+  button.mark-complete{
+    background:var(--steel);
+    color:var(--parchment);
+    border:none;
+    padding:10px 18px;
+    border-radius:3px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  button.mark-complete:hover{background:var(--steel-light);}
+  button.mark-complete.is-complete{background:var(--brass);color:#2a2114;}
+
+  /* intro / closing sections on dark bg */
+  .dark-block{padding:36px 0;}
+  .dark-block h3{color:var(--parchment);font-size:22px;margin-bottom:14px;}
+  .dark-block p{color:rgba(245,242,234,0.75);font-size:16px;max-width:620px;}
+  .quote-block{
+    border-left:2px solid var(--brass-light);
+    padding:4px 0 4px 22px;
+    margin:24px 0;
+    font-style:italic;
+    color:var(--parchment);
+    font-size:18px;
+  }
+
+  /* export bar */
+  .export-bar{
+    position:fixed;
+    bottom:0;left:0;right:0;
+    background:var(--navy-deep);
+    border-top:1px solid var(--line);
+    padding:14px 24px;
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    z-index:50;
+    flex-wrap:wrap;
+  }
+  .export-bar button{
+    background:transparent;
+    border:1px solid var(--line-strong);
+    color:var(--parchment);
+    padding:10px 18px;
+    border-radius:3px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .export-bar button:hover{background:var(--steel);border-color:var(--brass-light);}
+  .export-bar button.primary{
+    background:var(--brass-light);
+    color:#1c1610;
+    border-color:var(--brass-light);
+  }
+  .export-bar button.primary:hover{background:var(--gold);}
+  .export-bar .progress-text{
+    color:var(--brass-light);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    display:flex;
+    align-items:center;
+    margin-right:10px;
+  }
+
+  .phase-divider{
+    margin:48px 0 24px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .phase-divider .line{flex:1;height:1px;background:var(--line);}
+  .phase-divider .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--brass-light);
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+
+  details.tip{
+    margin-top:16px;
+    border:1px dashed rgba(26,24,20,0.2);
+    border-radius:3px;
+    padding:0;
+  }
+  details.tip summary{
+    cursor:pointer;
+    padding:10px 14px;
+    font-size:13px;
+    color:var(--brass);
+    font-family:'JetBrains Mono',monospace;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+  }
+  details.tip[open] summary{border-bottom:1px dashed rgba(26,24,20,0.2);}
+  details.tip .tip-body{
+    padding:14px 16px 16px;
+    font-size:14px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  details.tip .tip-body ul{margin:8px 0 0;padding-left:20px;}
+  details.tip .tip-body li{margin-bottom:4px;}
+
+  .closing{
+    text-align:center;
+    padding:60px 0 40px;
+  }
+  .closing .stars{
+    color:var(--brass-light);
+    font-size:18px;
+    letter-spacing:8px;
+    margin-bottom:20px;
+  }
+  .closing h3{font-size:26px;color:var(--parchment);margin-bottom:14px;}
+  .closing p{color:rgba(245,242,234,0.7);max-width:560px;margin:0 auto;font-size:16px;}
+
+  .reset-link{
+    text-align:center;
+    margin-top:16px;
+  }
+  .reset-link button{
+    background:none;border:none;color:rgba(245,242,234,0.35);
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    text-decoration:underline;cursor:pointer;
+  }
+  .reset-link button:hover{color:rgba(245,242,234,0.6);}
+
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--navy-deep);}
+  ::-webkit-scrollbar-thumb{background:var(--steel);border-radius:5px;}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <div class="cover">
+    <div class="cover-eyebrow"><span>Personal Development Record</span><span class="rule"></span><span>Unofficial &amp; Self-Maintained</span></div>
+    <h1>The Leadership<br><em>Jacket</em></h1>
+    <p class="lede">A working record you start as a Midshipman or officer candidate and keep filling in as you commission, qualify, and promote. No one grades this. No one screens it. It exists because the most important leadership project you'll ever run is the one nobody assigns you.</p>
+
+    <div class="name-row">
+      <div class="name-field">
+        <label for="nm-name">Name</label>
+        <input id="nm-name" type="text" placeholder="e.g. MIDN 2/C J. Rivera">
+      </div>
+      <div class="name-field">
+        <label for="nm-status">Current Status</label>
+        <input id="nm-status" type="text" placeholder="e.g. USNA Class of 2027, or ENS, USS Somewhere">
+      </div>
+      <div class="name-field">
+        <label for="nm-started">Jacket Opened</label>
+        <input id="nm-started" type="text" placeholder="e.g. June 2026">
+      </div>
+    </div>
+  </div>
+
+  <div class="logstrip" id="logstrip"></div>
+
+  <div class="dark-block">
+    <h3>How this works</h3>
+    <p>This isn't a one-sitting form. It's built around six phases, each anchored to a book and a set of reflections. Read the book, sit with the questions, write honestly — not for an audience. Your answers save automatically in this browser. When you're ready, export the whole jacket as a document you can keep, print, or carry forward to your next command.</p>
+    <p style="margin-top:14px;">There's a question underneath all six phases:</p>
+    <div class="quote-block">If no promotion board, fitrep ranking, command screen, or title could see your answer — who would you choose to become anyway?</div>
+  </div>
+
+  <!-- ============ PHASE I ============ -->
+  <div class="phase-divider"><span class="label">Phase I — Identity &amp; Foundations</span><div class="line"></div></div>
+
+  <section class="entry" data-entry="p1" id="entry-p1">
+    <div class="entry-head">
+      <div>
+        <span class="entry-tag">Who am I beneath the rank?</span>
+        <h2>The Leaders Who Shaped You</h2>
+        <div class="sub">Begin by looking outward before you look inward.</div>
+      </div>
+      <span class="status-pill" data-pill="p1">Not started</span>
+    </div>
+
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">The Road to Character</div>
+        <div class="author">David Brooks</div>
+        <div class="why">Draws the line between résumé virtues (what gets you promoted) and eulogy virtues (what gets remembered). Read this before you write anything else here.</div>
+      </div>
+    </div>
+
+    <div class="prompt-group">
+      <div class="q">Think of the best leader you've served under. What specifically made them effective — and how did they make people feel?</div>
+      <textarea data-field="p1-1" placeholder="Write freely. Specific moments are more useful than general impressions."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Think of the worst leader you've served under. What damaged trust, morale, or performance — and which of their tendencies do you recognize as a trap for yourself?</div>
+      <textarea data-field="p1-2" placeholder="This one is harder to write honestly. Try anyway."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Which "résumé virtues" have driven your career so far? Which "eulogy virtues" do you most admire in others — and where are the two in tension for you right now?</div>
+      <textarea data-field="p1-3" placeholder="Achievement vs. character. Where do they pull against each other?"></textarea>
+    </div>
+
+    <details class="tip">
+      <summary>Why this exercise first</summary>
+      <div class="tip-body">Every later phase assumes you've named your influences honestly. Skipping ahead to "vision" before doing this work tends to produce a leadership philosophy borrowed from a fitrep rather than earned from experience.</div>
+    </details>
+
+    <div class="entry-footer">
+      <span class="save-state" data-save="p1"><span class="dot"></span>Not saved yet</span>
+      <button class="mark-complete" data-complete-btn="p1">Mark entry complete</button>
+    </div>
+  </section>
+
+  <section class="entry" data-entry="p2" id="entry-p2">
+    <div class="entry-head">
+      <div>
+        <span class="entry-tag">Who am I beneath the rank?</span>
+        <h2>Midshipman Meets Officer</h2>
+        <div class="sub">A conversation across time, with yourself.</div>
+      </div>
+      <span class="status-pill" data-pill="p2">Not started</span>
+    </div>
+
+    <div class="prompt-group">
+      <div class="q">Imagine the version of you who first commissioned, sitting across from you now. What would they be proud of? What would surprise them?</div>
+      <textarea data-field="p2-1" placeholder="Be specific about what's changed — and what hasn't."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">What would disappoint them? Which ideals have you protected, and which have you quietly compromised — and why?</div>
+      <textarea data-field="p2-2" placeholder="The compromises matter more than the ideals you kept untouched."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">What advice would that earlier version of you give the person you are today?</div>
+      <textarea data-field="p2-3" placeholder="Write it as if they're actually speaking to you."></textarea>
+    </div>
+
+    <div class="entry-footer">
+      <span class="save-state" data-save="p2"><span class="dot"></span>Not saved yet</span>
+      <button class="mark-complete" data-complete-btn="p2">Mark entry complete</button>
+    </div>
+  </section>
+
+  <!-- ============ PHASE II ============ -->
+  <div class="phase-divider"><span class="label">Phase II — Leadership in Practice</span><div class="line"></div></div>
+
+  <section class="entry" data-entry="p3" id="entry-p3">
+    <div class="entry-head">
+      <div>
+        <span class="entry-tag">How do I want to lead?</span>
+        <h2>Ownership and Trust</h2>
+        <div class="sub">Where authority actually comes from.</div>
+      </div>
+      <span class="status-pill" data-pill="p3">Not started</span>
+    </div>
+
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">Turn the Ship Around!</div>
+        <div class="author">L. David Marquet</div>
+        <div class="why">A submarine captain's account of shifting from leader-follower to leader-leader. The most practically naval book on this list.</div>
+      </div>
+    </div>
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">Good to Great</div>
+        <div class="author">Jim Collins</div>
+        <div class="why">Not written for the military, but its core finding — that enduring performance comes from disciplined people, thought, and action, not charisma — translates directly to command climate.</div>
+      </div>
+    </div>
+
+    <div class="prompt-group">
+      <div class="q">Where do you currently retain control that you could hand to the people who actually do the work? What's stopping you?</div>
+      <textarea data-field="p3-1" placeholder="Name a specific decision or process, not a generality."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Collins distinguishes "Level 5 leaders" — quietly determined, ambitious for the mission rather than themselves — from charismatic ones. Which type have you served under, and which are you becoming?</div>
+      <textarea data-field="p3-2" placeholder="It's fine if the honest answer is unflattering."></textarea>
+    </div>
+
+    <div class="entry-footer">
+      <span class="save-state" data-save="p3"><span class="dot"></span>Not saved yet</span>
+      <button class="mark-complete" data-complete-btn="p3">Mark entry complete</button>
+    </div>
+  </section>
+
+  <section class="entry" data-entry="p4" id="entry-p4">
+    <div class="entry-head">
+      <div>
+        <span class="entry-tag">How do I want to lead?</span>
+        <h2>People, Plainly</h2>
+        <div class="sub">Influence without rank — and influence with it.</div>
+      </div>
+      <span class="status-pill" data-pill="p4">Not started</span>
+    </div>
+
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">How to Win Friends and Influence People</div>
+        <div class="author">Dale Carnegie</div>
+        <div class="why">Unfashionable to recommend, durable in practice. Most of what it teaches is just paying genuine attention to people — which gets harder, not easier, the more rank you hold.</div>
+      </div>
+    </div>
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">Crucial Conversations</div>
+        <div class="author">Grenny, Patterson, McMillan, Switzler, Gregory</div>
+        <div class="why">A framework for the conversations everyone avoids — high stakes, strong emotion, differing opinions. Required reading before you ever have to deliver a counseling, a hard fitrep conversation, or tell a senior something they don't want to hear.</div>
+      </div>
+    </div>
+
+    <div class="prompt-group">
+      <div class="q">Think of a conversation you've been avoiding — with a senior, a peer, or someone you lead. What's actually at stake, and what's stopped you from having it?</div>
+      <textarea data-field="p4-1" placeholder="Name the conversation, even if you're not ready to have it yet."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Carnegie's central claim is that people respond to genuine interest and respect far more than to argument. Where in your leadership do you reach for authority before you reach for understanding?</div>
+      <textarea data-field="p4-2" placeholder="Think of a recent disagreement or correction you delivered."></textarea>
+    </div>
+
+    <div class="entry-footer">
+      <span class="save-state" data-save="p4"><span class="dot"></span>Not saved yet</span>
+      <button class="mark-complete" data-complete-btn="p4">Mark entry complete</button>
+    </div>
+  </section>
+
+  <!-- ============ PHASE III ============ -->
+  <div class="phase-divider"><span class="label">Phase III — The Weight of Command</span><div class="line"></div></div>
+
+  <section class="entry" data-entry="p5" id="entry-p5">
+    <div class="entry-head">
+      <div>
+        <span class="entry-tag">What happens when the stakes are real?</span>
+        <h2>Risk, Ownership, and Its Limits</h2>
+        <div class="sub">Where accountability ends and martyrdom begins.</div>
+      </div>
+      <span class="status-pill" data-pill="p5">Not started</span>
+    </div>
+
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">It's Your Ship</div>
+        <div class="author">Captain D. Michael Abrashoff</div>
+        <div class="why">The classic. Read it for the ideas, and read it skeptically — ask what's specific to one ship and one moment in time, versus what's genuinely transferable.</div>
+      </div>
+    </div>
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">Extreme Ownership</div>
+        <div class="author">Jocko Willink &amp; Leif Babin</div>
+        <div class="why">Worth engaging critically rather than reverently — total ownership is a useful corrective, but it has a failure mode too.</div>
+      </div>
+    </div>
+
+    <div class="prompt-group">
+      <div class="q">Abrashoff took real risks to change his ship's culture. Would you have had the courage to take the same risks — and what's actually held you back, when you didn't?</div>
+      <textarea data-field="p5-1" placeholder="Be honest about your own risk tolerance, not the ideal version of it."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Where does "extreme ownership" become unhealthy for you specifically? What burdens are actually yours to carry, and which ones have you taken on that aren't?</div>
+      <textarea data-field="p5-2" placeholder="This is about your own tendency toward over- or under-ownership."></textarea>
+    </div>
+
+    <div class="entry-footer">
+      <span class="save-state" data-save="p5"><span class="dot"></span>Not saved yet</span>
+      <button class="mark-complete" data-complete-btn="p5">Mark entry complete</button>
+    </div>
+  </section>
+
+  <!-- ============ PHASE IV ============ -->
+  <div class="phase-divider"><span class="label">Phase IV — Judgment &amp; Decision-Making</span><div class="line"></div></div>
+
+  <section class="entry" data-entry="p6" id="entry-p6">
+    <div class="entry-head">
+      <div>
+        <span class="entry-tag">How do good leaders think?</span>
+        <h2>Bias, Confidence, and Uncertainty</h2>
+        <div class="sub">The thinking behind the decisions.</div>
+      </div>
+      <span class="status-pill" data-pill="p6">Not started</span>
+    </div>
+
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">Thinking, Fast and Slow</div>
+        <div class="author">Daniel Kahneman</div>
+        <div class="why">The map of your own cognitive blind spots. Read it as a user manual for the brain you'll be making decisions with under pressure.</div>
+      </div>
+    </div>
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">The Black Swan</div>
+        <div class="author">Nassim Nicholas Taleb</div>
+        <div class="why">On the limits of planning, and the danger of mistaking a quiet stretch for a stable one.</div>
+      </div>
+    </div>
+
+    <div class="prompt-group">
+      <div class="q">When have you mistaken confidence — yours or someone senior to you — for actual competence?</div>
+      <textarea data-field="p6-1" placeholder="A specific decision, briefing, or moment, not a general pattern."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">What assumptions underpin your current plans — for your career, your division, your ship — that you haven't actually stress-tested?</div>
+      <textarea data-field="p6-2" placeholder="What would have to be true for your current plan to fail badly?"></textarea>
+    </div>
+
+    <div class="entry-footer">
+      <span class="save-state" data-save="p6"><span class="dot"></span>Not saved yet</span>
+      <button class="mark-complete" data-complete-btn="p6">Mark entry complete</button>
+    </div>
+  </section>
+
+  <!-- ============ PHASE V ============ -->
+  <div class="phase-divider"><span class="label">Phase V — Legacy</span><div class="line"></div></div>
+
+  <section class="entry" data-entry="p7" id="entry-p7">
+    <div class="entry-head">
+      <div>
+        <span class="entry-tag">What do I want this career to mean?</span>
+        <h2>What's Within Your Control</h2>
+        <div class="sub">Perspective, at the end of it.</div>
+      </div>
+      <span class="status-pill" data-pill="p7">Not started</span>
+    </div>
+
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">Meditations</div>
+        <div class="author">Marcus Aurelius</div>
+        <div class="why">Notes a man in command wrote only for himself. What is genuinely within your control, and what would a good officer look like if nobody noticed?</div>
+      </div>
+    </div>
+    <div class="book">
+      <div class="spine"></div>
+      <div class="book-meta">
+        <div class="title">The Second Mountain</div>
+        <div class="author">David Brooks</div>
+        <div class="why">On the difference between the mountain you climb for yourself and the one you climb in service of something larger.</div>
+      </div>
+    </div>
+
+    <div class="prompt-group">
+      <div class="q">Finish this sentence, as if a Sailor you led is saying it years from now: "I'm glad I served under them because..." What moments would have to happen for that to be true?</div>
+      <textarea data-field="p7-1" placeholder="Write it in their voice, not yours."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Is command the goal, or a vehicle for something else? What does this career mean if you never screen for it?</div>
+      <textarea data-field="p7-2" placeholder="Sit with the second question — it tends to be the harder one."></textarea>
+    </div>
+
+    <div class="entry-footer">
+      <span class="save-state" data-save="p7"><span class="dot"></span>Not saved yet</span>
+      <button class="mark-complete" data-complete-btn="p7">Mark entry complete</button>
+    </div>
+  </section>
+
+  <!-- ============ PHASE VI — SYNTHESIS ============ -->
+  <div class="phase-divider"><span class="label">Phase VI — The Operating Manual</span><div class="line"></div></div>
+
+  <section class="entry" data-entry="p8" id="entry-p8">
+    <div class="entry-head">
+      <div>
+        <span class="entry-tag">Bringing it together</span>
+        <h2>Your Leadership Operating Manual</h2>
+        <div class="sub">The living document. Revisit this every time you change billets, rank, or command.</div>
+      </div>
+      <span class="status-pill" data-pill="p8">Not started</span>
+    </div>
+
+    <div class="prompt-group">
+      <div class="q">Personal Mission Statement — in two or three sentences, why you serve and what you stand for.</div>
+      <textarea data-field="p8-1" placeholder="Short enough to remember under stress."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Leadership Philosophy — how you intend to lead the people under you.</div>
+      <textarea data-field="p8-2" placeholder="What you owe the people who work for you."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Command Climate Vision — what you want people to know happens the moment they walk into your division, department, or wardroom. What would never be tolerated?</div>
+      <textarea data-field="p8-3" placeholder="Be concrete about behaviors, not just values."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">Decision-Making Principles — the guardrails you want in place before you're tested, not after.</div>
+      <textarea data-field="p8-4" placeholder="The rules you set for yourself in advance, because you won't trust yourself to set them in the moment."></textarea>
+    </div>
+    <div class="prompt-group">
+      <div class="q">The hard question: at the end of this career, what would make you say "it was worth it" — and what would make you say it wasn't?</div>
+      <textarea data-field="p8-5" placeholder="Name the conditions for both answers honestly."></textarea>
+    </div>
+
+    <details class="tip">
+      <summary>How to actually use this going forward</summary>
+      <div class="tip-body">
+        This page doesn't expire when you commission, qualify, or screen for command. The intent is to come back and revise it:
+        <ul>
+          <li>Re-read your Phase I and II answers every time you change duty stations.</li>
+          <li>Rewrite your Operating Manual before you take charge of anyone for the first time — division, department, or ship.</li>
+          <li>Export a copy at each milestone so you can see how your answers actually changed, not just how you remember them changing.</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="entry-footer">
+      <span class="save-state" data-save="p8"><span class="dot"></span>Not saved yet</span>
+      <button class="mark-complete" data-complete-btn="p8">Mark entry complete</button>
+    </div>
+  </section>
+
+  <div class="closing">
+    <div class="stars">★ ★ ★</div>
+    <h3>Who would you choose to become anyway?</h3>
+    <p>No promotion board sees this page. No fitrep ranks it. That's exactly why it's worth keeping.</p>
+  </div>
+
+  <div class="reset-link">
+    <button id="reset-btn">Clear this jacket and start over</button>
+  </div>
+
+</div>
+
+<div class="export-bar">
+  <span class="progress-text" id="progress-text">0 / 8 entries complete</span>
+  <button id="export-btn" class="primary">Export jacket as document</button>
+  <button id="print-btn">Print</button>
+</div>
+
+<script>
+(function(){
+  const FIELD_IDS = ['nm-name','nm-status','nm-started'];
+  const ENTRY_IDS = ['p1','p2','p3','p4','p5','p6','p7','p8'];
+  const ENTRY_TITLES = {
+    p1:'The Leaders Who Shaped You', p2:'Midshipman Meets Officer',
+    p3:'Ownership and Trust', p4:'People, Plainly',
+    p5:'Risk, Ownership, and Its Limits', p6:'Bias, Confidence, and Uncertainty',
+    p7:"What's Within Your Control", p8:'Your Leadership Operating Manual'
+  };
+  const STORAGE_KEY = 'leadership-jacket-v1';
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {fields:{}, complete:{}};
+    }catch(e){ return {fields:{}, complete:{}}; }
+  }
+  function saveState(state){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  let state = loadState();
+  if(!state.fields) state.fields = {};
+  if(!state.complete) state.complete = {};
+
+  // hydrate name fields
+  FIELD_IDS.forEach(id=>{
+    const el = document.getElementById(id);
+    if(state.fields[id]) el.value = state.fields[id];
+    el.addEventListener('input', ()=>{
+      state.fields[id] = el.value;
+      saveState(state);
+    });
+  });
+
+  // hydrate textareas
+  document.querySelectorAll('textarea[data-field]').forEach(ta=>{
+    const key = ta.getAttribute('data-field');
+    if(state.fields[key]) ta.value = state.fields[key];
+    let timeout;
+    ta.addEventListener('input', ()=>{
+      state.fields[key] = ta.value;
+      const entryId = key.split('-')[0];
+      const saveEl = document.querySelector('[data-save="'+entryId+'"]');
+      if(saveEl){
+        saveEl.classList.remove('saved');
+        saveEl.innerHTML = '<span class="dot"></span>Saving…';
+      }
+      clearTimeout(timeout);
+      timeout = setTimeout(()=>{
+        saveState(state);
+        if(saveEl){
+          saveEl.classList.add('saved');
+          saveEl.innerHTML = '<span class="dot"></span>Saved to this browser';
+        }
+      }, 400);
+    });
+  });
+
+  function updateEntryVisual(id){
+    const isComplete = !!state.complete[id];
+    const entryEl = document.getElementById('entry-'+id);
+    const pillEl = document.querySelector('[data-pill="'+id+'"]');
+    const btnEl = document.querySelector('[data-complete-btn="'+id+'"]');
+    const logEl = document.querySelector('[data-log="'+id+'"]');
+    if(entryEl) entryEl.classList.toggle('complete', isComplete);
+    if(pillEl){
+      pillEl.textContent = isComplete ? 'Complete' : 'Not started';
+      pillEl.classList.toggle('complete', isComplete);
+    }
+    if(btnEl){
+      btnEl.textContent = isComplete ? 'Marked complete ✓' : 'Mark entry complete';
+      btnEl.classList.toggle('is-complete', isComplete);
+    }
+    if(logEl) logEl.classList.toggle('done', isComplete);
+  }
+
+  document.querySelectorAll('[data-complete-btn]').forEach(btn=>{
+    const id = btn.getAttribute('data-complete-btn');
+    btn.addEventListener('click', ()=>{
+      state.complete[id] = !state.complete[id];
+      saveState(state);
+      updateEntryVisual(id);
+      updateProgress();
+    });
+  });
+
+  // build logstrip
+  const logstrip = document.getElementById('logstrip');
+  ENTRY_IDS.forEach((id, idx)=>{
+    const a = document.createElement('a');
+    a.href = '#entry-'+id;
+    a.setAttribute('data-log', id);
+    a.innerHTML = '<span class="ls-num">'+String(idx+1).padStart(2,'0')+'</span>'+ENTRY_TITLES[id];
+    logstrip.appendChild(a);
+  });
+
+  function updateProgress(){
+    const total = ENTRY_IDS.length;
+    const done = ENTRY_IDS.filter(id=>state.complete[id]).length;
+    document.getElementById('progress-text').textContent = done + ' / ' + total + ' entries complete';
+  }
+
+  // initial hydrate of save-state labels if content exists
+  ENTRY_IDS.forEach(id=>{
+    updateEntryVisual(id);
+    const hasContent = Object.keys(state.fields).some(k => k.startsWith(id+'-') && state.fields[k] && state.fields[k].trim().length>0);
+    const saveEl = document.querySelector('[data-save="'+id+'"]');
+    if(hasContent && saveEl){
+      saveEl.classList.add('saved');
+      saveEl.innerHTML = '<span class="dot"></span>Saved to this browser';
+    }
+  });
+  updateProgress();
+
+  // reset
+  document.getElementById('reset-btn').addEventListener('click', ()=>{
+    if(confirm('This clears every entry in this jacket on this device. This cannot be undone. Continue?')){
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+  });
+
+  // export as text document
+  document.getElementById('export-btn').addEventListener('click', ()=>{
+    const name = state.fields['nm-name'] || '(name not entered)';
+    const status = state.fields['nm-status'] || '(status not entered)';
+    const started = state.fields['nm-started'] || '(date not entered)';
+    let out = '';
+    out += 'THE LEADERSHIP JACKET\n';
+    out += 'Personal Development Record\n';
+    out += '='.repeat(50) + '\n\n';
+    out += 'Name: ' + name + '\n';
+    out += 'Status: ' + status + '\n';
+    out += 'Jacket opened: ' + started + '\n';
+    out += 'Exported: ' + new Date().toLocaleDateString() + '\n\n';
+
+    const prompts = {
+      'p1-1':'Best leader you served under — what made them effective?',
+      'p1-2':'Worst leader you served under — what damaged trust, and what traps do you recognize in yourself?',
+      'p1-3':'Résumé virtues vs. eulogy virtues — where are they in tension?',
+      'p2-1':'What would your earlier self be proud of, and what would surprise them?',
+      'p2-2':'What would disappoint them, and what ideals have you compromised?',
+      'p2-3':'What advice would your earlier self give you now?',
+      'p3-1':'Where do you retain control you could hand off?',
+      'p3-2':'Level 5 leadership — which type have you served under, which are you becoming?',
+      'p4-1':'A conversation you have been avoiding, and what is actually at stake',
+      'p4-2':'Where do you reach for authority before understanding?',
+      'p5-1':'Would you have had the courage to take Abrashoff-level risks?',
+      'p5-2':'Where does extreme ownership become unhealthy for you?',
+      'p6-1':'When have you mistaken confidence for competence?',
+      'p6-2':'What unexamined assumptions underpin your current plans?',
+      'p7-1':'"I am glad I served under them because..." — in their voice',
+      'p7-2':'Is command the goal, or a vehicle for something else?',
+      'p8-1':'Personal Mission Statement',
+      'p8-2':'Leadership Philosophy',
+      'p8-3':'Command Climate Vision',
+      'p8-4':'Decision-Making Principles',
+      'p8-5':'The hard question: worth it, or not — and under what conditions?'
+    };
+
+    const sections = [
+      {title:'PHASE I — IDENTITY & FOUNDATIONS', keys:['p1-1','p1-2','p1-3','p2-1','p2-2','p2-3']},
+      {title:'PHASE II — LEADERSHIP IN PRACTICE', keys:['p3-1','p3-2','p4-1','p4-2']},
+      {title:'PHASE III — THE WEIGHT OF COMMAND', keys:['p5-1','p5-2']},
+      {title:'PHASE IV — JUDGMENT & DECISION-MAKING', keys:['p6-1','p6-2']},
+      {title:'PHASE V — LEGACY', keys:['p7-1','p7-2']},
+      {title:'PHASE VI — THE OPERATING MANUAL', keys:['p8-1','p8-2','p8-3','p8-4','p8-5']}
+    ];
+
+    sections.forEach(sec=>{
+      out += '-'.repeat(50) + '\n';
+      out += sec.title + '\n';
+      out += '-'.repeat(50) + '\n\n';
+      sec.keys.forEach(k=>{
+        out += prompts[k] + '\n';
+        const val = (state.fields[k] || '').trim();
+        out += (val.length ? val : '[ not yet answered ]') + '\n\n';
+      });
+    });
+
+    out += '='.repeat(50) + '\n';
+    out += 'If no promotion board, fitrep ranking, command screen, or\n';
+    out += 'title could see your answer — who would you choose to\n';
+    out += 'become anyway?\n';
+
+    const blob = new Blob([out], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const fname = (name !== '(name not entered)' ? name.replace(/[^a-z0-9]+/gi,'_') : 'leadership_jacket');
+    a.download = fname + '_leadership_jacket.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('print-btn').addEventListener('click', ()=>{
+    window.print();
+  });
+
+})();
+</script>
+
+</body>
+</html>
